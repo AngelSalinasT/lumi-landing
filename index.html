@@ -1,0 +1,1394 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lumi — Compañero IA para adultos mayores</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    :root {
+      --ember: #D4793A;
+      --ember-light: #E8A86A;
+      --ember-glow: #F4C78E;
+      --hearth: #2A1A0E;
+      --hearth-mid: #3D2C1E;
+      --cream: #FFF9F2;
+      --cream-dark: #F5EDE3;
+      --coral: #D4645A;
+      --sage: #7A9A7E;
+      --text: #3A2A1E;
+      --text-light: #8A7A6E;
+      --radius: 20px;
+      --radius-sm: 12px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html {
+      scroll-behavior: smooth;
+      overflow-x: hidden;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      color: var(--text);
+      background: var(--cream);
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── GRAIN OVERLAY ── */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.03;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+
+    /* ── TYPOGRAPHY ── */
+    h1, h2, h3, h4 {
+      font-family: 'Fraunces', serif;
+      font-weight: 600;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+    }
+
+    p { line-height: 1.7; }
+
+    .section-label {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--ember);
+      margin-bottom: 1rem;
+      display: inline-block;
+    }
+
+    .section-title {
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      color: var(--hearth);
+      margin-bottom: 1.5rem;
+    }
+
+    .section-desc {
+      font-size: 1.1rem;
+      color: var(--text-light);
+      max-width: 600px;
+      line-height: 1.8;
+    }
+
+    /* ── LAYOUT ── */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+
+    section {
+      padding: 7rem 0;
+    }
+
+    /* ── SCROLL ANIMATIONS ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+                  transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+    .reveal-delay-4 { transition-delay: 0.4s; }
+    .reveal-delay-5 { transition-delay: 0.5s; }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 1.2rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.4s ease;
+    }
+
+    nav.scrolled {
+      background: rgba(255, 249, 242, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(212, 121, 58, 0.1);
+      padding: 0.8rem 2rem;
+    }
+
+    .nav-logo {
+      font-family: 'Fraunces', serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--hearth);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .nav-logo .logo-dot {
+      width: 10px;
+      height: 10px;
+      background: var(--ember);
+      border-radius: 50%;
+      animation: pulse-glow 2.5s ease-in-out infinite;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+      align-items: center;
+    }
+
+    .nav-links a {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text-light);
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+
+    .nav-links a:hover { color: var(--ember); }
+
+    .nav-cta {
+      background: var(--hearth);
+      color: var(--cream) !important;
+      padding: 0.6rem 1.4rem;
+      border-radius: 100px;
+      font-weight: 600 !important;
+      transition: transform 0.3s, box-shadow 0.3s !important;
+    }
+
+    .nav-cta:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(42, 26, 14, 0.2);
+    }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+      padding-top: 5rem;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -30%;
+      right: -20%;
+      width: 800px;
+      height: 800px;
+      background: radial-gradient(circle, rgba(212, 121, 58, 0.12) 0%, transparent 70%);
+      border-radius: 50%;
+      animation: float-slow 8s ease-in-out infinite;
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: -20%;
+      left: -10%;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(122, 154, 126, 0.08) 0%, transparent 70%);
+      border-radius: 50%;
+      animation: float-slow 10s ease-in-out infinite reverse;
+    }
+
+    .hero .container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-text h1 {
+      font-size: clamp(2.8rem, 6vw, 4.5rem);
+      color: var(--hearth);
+      margin-bottom: 1.5rem;
+      line-height: 1.08;
+    }
+
+    .hero-text h1 .highlight {
+      color: var(--ember);
+      font-style: italic;
+      position: relative;
+    }
+
+    .hero-text h1 .highlight::after {
+      content: '';
+      position: absolute;
+      bottom: 4px;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--ember-glow);
+      border-radius: 2px;
+    }
+
+    .hero-text .subtitle {
+      font-size: 1.2rem;
+      color: var(--text-light);
+      max-width: 480px;
+      margin-bottom: 2.5rem;
+      line-height: 1.8;
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--ember);
+      color: #fff;
+      padding: 1rem 2rem;
+      border-radius: 100px;
+      font-weight: 600;
+      font-size: 1rem;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 4px 16px rgba(212, 121, 58, 0.3);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 32px rgba(212, 121, 58, 0.4);
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: transparent;
+      color: var(--hearth);
+      padding: 1rem 2rem;
+      border-radius: 100px;
+      font-weight: 600;
+      font-size: 1rem;
+      text-decoration: none;
+      border: 2px solid rgba(42, 26, 14, 0.15);
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--ember);
+      color: var(--ember);
+    }
+
+    /* ── LUMI DEVICE ── */
+    .hero-visual {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+
+    .device-wrapper {
+      position: relative;
+      animation: float-device 4s ease-in-out infinite;
+    }
+
+    .device {
+      width: 300px;
+      height: 340px;
+      background: linear-gradient(145deg, #ffffff 0%, #f2f2f2 50%, #e8e8e8 100%);
+      border-radius: 28px;
+      position: relative;
+      box-shadow:
+        0 40px 80px rgba(42, 26, 14, 0.18),
+        0 0 0 1px rgba(0, 0, 0, 0.07),
+        inset 0 1px 0 rgba(255, 255, 255, 1);
+      overflow: hidden;
+    }
+
+    .device::before {
+      content: '';
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      right: 8px;
+      bottom: 60px;
+      background: #0a0a0a;
+      border-radius: 18px;
+    }
+
+    .device-screen {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      right: 12px;
+      bottom: 64px;
+      background: #0a0a0a;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    /* glass reflection on screen */
+    .device-screen::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.04) 0%, transparent 40%);
+      border-radius: 14px;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    /* eyes move as a unit */
+    .eyes-container {
+      display: flex;
+      gap: 44px;
+      align-items: center;
+      animation: look-around 8s ease-in-out infinite;
+      z-index: 1;
+    }
+
+    .eye {
+      width: 52px;
+      height: 72px;
+      background: #5AC3FF;
+      border-radius: 14px;
+      position: relative;
+      flex-shrink: 0;
+      box-shadow:
+        0 0 18px rgba(90, 195, 255, 0.55),
+        0 0 40px rgba(90, 195, 255, 0.2);
+      transform-origin: center center;
+      animation: blink 5s ease-in-out infinite;
+    }
+
+    .eye.eye-right {
+      animation-delay: 0.045s;
+    }
+
+    /* eyelid slides down on blink */
+    .eye::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: #0a0a0a;
+      border-radius: 14px;
+      transform-origin: top center;
+      transform: scaleY(0);
+      animation: eyelid 5s ease-in-out infinite;
+      z-index: 2;
+    }
+
+    .eye.eye-right::before {
+      animation-delay: 0.045s;
+    }
+
+    /* subtle highlight on eye */
+    .eye::after {
+      content: '';
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      width: 12px;
+      height: 18px;
+      background: rgba(255, 255, 255, 0.35);
+      border-radius: 6px;
+      pointer-events: none;
+    }
+
+    .device-buttons {
+      position: absolute;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 28px;
+    }
+
+    .device-btn {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 1.5px solid rgba(0, 0, 0, 0.08);
+      box-shadow:
+        0 2px 6px rgba(0, 0, 0, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    }
+
+    .device-glow {
+      position: absolute;
+      bottom: -40px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 200px;
+      height: 80px;
+      background: radial-gradient(ellipse, rgba(90, 195, 255, 0.12) 0%, transparent 70%);
+      filter: blur(12px);
+    }
+
+    /* floating particles around device */
+    .particle {
+      position: absolute;
+      border-radius: 50%;
+      background: var(--ember-glow);
+      opacity: 0;
+      animation: particle-float 5s ease-in-out infinite;
+    }
+
+    .particle:nth-child(1) { width: 8px; height: 8px; top: 10%; left: -20px; animation-delay: 0s; }
+    .particle:nth-child(2) { width: 6px; height: 6px; top: 30%; right: -30px; animation-delay: 1.2s; }
+    .particle:nth-child(3) { width: 10px; height: 10px; bottom: 20%; left: -40px; animation-delay: 2.5s; }
+    .particle:nth-child(4) { width: 5px; height: 5px; top: 60%; right: -15px; animation-delay: 0.8s; }
+
+    /* ── PROBLEM SECTION ── */
+    .problem {
+      background: var(--hearth);
+      color: var(--cream);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .problem::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 120px;
+      background: linear-gradient(to bottom, var(--cream), var(--hearth));
+    }
+
+    .problem .section-label { color: var(--ember-glow); }
+    .problem .section-title { color: var(--cream); }
+    .problem .section-desc { color: rgba(255, 249, 242, 0.7); }
+
+    .problem-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+      margin-top: 3rem;
+    }
+
+    .stat-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: var(--radius);
+      padding: 2.5rem;
+      backdrop-filter: blur(10px);
+      transition: transform 0.3s, border-color 0.3s;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(212, 121, 58, 0.3);
+    }
+
+    .stat-number {
+      font-family: 'Fraunces', serif;
+      font-size: 3.5rem;
+      font-weight: 700;
+      color: var(--ember-glow);
+      line-height: 1;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+      font-size: 1.1rem;
+      color: rgba(255, 249, 242, 0.7);
+      line-height: 1.6;
+    }
+
+    .problem-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    .problem-text blockquote {
+      font-family: 'Fraunces', serif;
+      font-size: 1.5rem;
+      font-style: italic;
+      color: var(--ember-glow);
+      padding-left: 1.5rem;
+      border-left: 3px solid var(--ember);
+      line-height: 1.5;
+    }
+
+    /* ── SOLUTION / HOW IT WORKS ── */
+    .solution {
+      position: relative;
+    }
+
+    .solution::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 120px;
+      background: linear-gradient(to bottom, var(--hearth), var(--cream));
+    }
+
+    .solution-header {
+      text-align: center;
+      max-width: 700px;
+      margin: 0 auto 4rem;
+    }
+
+    .solution-header .section-desc {
+      margin: 0 auto;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+      position: relative;
+    }
+
+    .steps::before {
+      content: '';
+      position: absolute;
+      top: 80px;
+      left: 15%;
+      right: 15%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--ember-glow), transparent);
+    }
+
+    .step {
+      text-align: center;
+      padding: 2.5rem 2rem;
+      background: #fff;
+      border-radius: var(--radius);
+      border: 1px solid rgba(42, 26, 14, 0.06);
+      box-shadow: 0 8px 32px rgba(42, 26, 14, 0.04);
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+    }
+
+    .step:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 16px 48px rgba(42, 26, 14, 0.08);
+    }
+
+    .step-icon {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      margin: 0 auto 1.5rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .step:nth-child(1) .step-icon {
+      background: linear-gradient(135deg, #FFF3E0, #FFE0B2);
+    }
+
+    .step:nth-child(2) .step-icon {
+      background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
+    }
+
+    .step:nth-child(3) .step-icon {
+      background: linear-gradient(135deg, #FCE4EC, #F8BBD0);
+    }
+
+    .step-number {
+      font-family: 'Fraunces', serif;
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: var(--ember);
+      margin-bottom: 0.5rem;
+    }
+
+    .step h3 {
+      font-size: 1.3rem;
+      margin-bottom: 0.75rem;
+      color: var(--hearth);
+    }
+
+    .step p {
+      font-size: 0.95rem;
+      color: var(--text-light);
+    }
+
+    /* ── FEATURES ── */
+    .features {
+      background: var(--cream-dark);
+      position: relative;
+    }
+
+    .features-header {
+      text-align: center;
+      max-width: 700px;
+      margin: 0 auto 4rem;
+    }
+
+    .features-header .section-desc { margin: 0 auto; }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+    }
+
+    .feature-card {
+      background: #fff;
+      border-radius: var(--radius);
+      padding: 2.5rem;
+      border: 1px solid rgba(42, 26, 14, 0.05);
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--ember);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.4s ease;
+    }
+
+    .feature-card:hover::before { transform: scaleX(1); }
+
+    .feature-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 48px rgba(42, 26, 14, 0.06);
+    }
+
+    .feature-icon {
+      font-size: 2rem;
+      margin-bottom: 1.2rem;
+      display: block;
+    }
+
+    .feature-card h3 {
+      font-size: 1.25rem;
+      margin-bottom: 0.75rem;
+      color: var(--hearth);
+    }
+
+    .feature-card p {
+      font-size: 0.95rem;
+      color: var(--text-light);
+    }
+
+    .step-icon svg, .step-icon i {
+      width: 2rem;
+      height: 2rem;
+      stroke-width: 1.8;
+      color: var(--hearth);
+    }
+
+    .feature-icon svg, .feature-icon i {
+      width: 2rem;
+      height: 2rem;
+      stroke-width: 1.8;
+      color: var(--ember);
+    }
+
+    .feature-card.featured .feature-icon svg,
+    .feature-card.featured .feature-icon i {
+      color: var(--ember-glow);
+    }
+
+    .feature-card.featured {
+      grid-column: span 2;
+      background: linear-gradient(135deg, var(--hearth) 0%, var(--hearth-mid) 100%);
+      color: var(--cream);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: center;
+    }
+
+    .feature-card.featured::before { display: none; }
+    .feature-card.featured h3 { color: var(--cream); font-size: 1.6rem; }
+    .feature-card.featured p { color: rgba(255, 249, 242, 0.7); }
+
+    .feature-card.featured .feature-visual {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .app-mockup {
+      width: 200px;
+      height: 400px;
+      background: linear-gradient(180deg, #1a1a2e, #0d0d1f);
+      border-radius: 30px;
+      border: 3px solid rgba(255, 255, 255, 0.1);
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    .app-mockup::before {
+      content: '';
+      position: absolute;
+      top: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 3px;
+    }
+
+    .app-screen {
+      position: absolute;
+      top: 24px;
+      left: 6px;
+      right: 6px;
+      bottom: 6px;
+      background: var(--cream);
+      border-radius: 24px;
+      padding: 1.2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .app-header-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.3rem;
+    }
+
+    .app-header-bar .dot { width: 8px; height: 8px; background: var(--sage); border-radius: 50%; }
+    .app-header-bar span { font-size: 0.6rem; font-weight: 700; color: var(--hearth); }
+
+    .app-card-mini {
+      background: #fff;
+      border-radius: 10px;
+      padding: 0.7rem;
+      border: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .app-card-mini .label { font-size: 0.45rem; color: var(--text-light); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+    .app-card-mini .value { font-family: 'Fraunces', serif; font-size: 0.8rem; color: var(--hearth); font-weight: 600; margin-top: 2px; }
+    .app-card-mini .bar { height: 4px; background: var(--cream-dark); border-radius: 2px; margin-top: 6px; }
+    .app-card-mini .bar-fill { height: 100%; background: var(--sage); border-radius: 2px; }
+
+    /* ── TECH STACK ── */
+    .tech {
+      position: relative;
+    }
+
+    .tech-header {
+      text-align: center;
+      max-width: 700px;
+      margin: 0 auto 4rem;
+    }
+
+    .tech-header .section-desc { margin: 0 auto; }
+
+    .tech-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1rem;
+    }
+
+    .tech-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      background: #fff;
+      border: 1px solid rgba(42, 26, 14, 0.08);
+      padding: 0.9rem 1.5rem;
+      border-radius: 100px;
+      font-weight: 500;
+      font-size: 0.95rem;
+      transition: all 0.3s;
+      cursor: default;
+    }
+
+    .tech-pill:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(42, 26, 14, 0.06);
+      border-color: var(--ember-light);
+    }
+
+    .tech-pill .tech-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    /* ── TEAM ── */
+    .team {
+      background: var(--cream-dark);
+    }
+
+    .team-header {
+      text-align: center;
+      max-width: 700px;
+      margin: 0 auto 4rem;
+    }
+
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 1.5rem;
+    }
+
+    .team-card {
+      text-align: center;
+      padding: 2rem 1rem;
+      background: #fff;
+      border-radius: var(--radius);
+      border: 1px solid rgba(42, 26, 14, 0.05);
+      transition: all 0.3s;
+    }
+
+    .team-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(42, 26, 14, 0.06);
+    }
+
+    .team-avatar {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      margin: 0 auto 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      font-family: 'Fraunces', serif;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .team-card:nth-child(1) .team-avatar { background: linear-gradient(135deg, var(--ember), #c0612a); }
+    .team-card:nth-child(2) .team-avatar { background: linear-gradient(135deg, var(--sage), #5a7a5e); }
+    .team-card:nth-child(3) .team-avatar { background: linear-gradient(135deg, #6C8EBF, #4A6A9F); }
+    .team-card:nth-child(4) .team-avatar { background: linear-gradient(135deg, var(--coral), #b4443a); }
+    .team-card:nth-child(5) .team-avatar { background: linear-gradient(135deg, #8E7CC3, #6E5CA3); }
+
+    .team-card h4 {
+      font-size: 1rem;
+      margin-bottom: 0.3rem;
+      color: var(--hearth);
+    }
+
+    .team-card .role {
+      font-size: 0.8rem;
+      color: var(--text-light);
+    }
+
+    /* ── CTA ── */
+    .cta {
+      background: linear-gradient(135deg, var(--hearth) 0%, #1a100a 100%);
+      color: var(--cream);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(212, 121, 58, 0.08) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .cta-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .cta h2 {
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      color: var(--cream);
+      margin-bottom: 1.5rem;
+    }
+
+    .cta p {
+      font-size: 1.15rem;
+      color: rgba(255, 249, 242, 0.6);
+      max-width: 550px;
+      margin: 0 auto 2.5rem;
+    }
+
+    .cta .btn-primary {
+      font-size: 1.1rem;
+      padding: 1.1rem 2.5rem;
+    }
+
+    .hackathon-badge {
+      margin-top: 3rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.8rem 1.5rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 100px;
+      font-size: 0.85rem;
+      color: rgba(255, 249, 242, 0.5);
+    }
+
+    .hackathon-badge strong { color: var(--ember-glow); }
+
+    /* ── FOOTER ── */
+    footer {
+      background: #0f0a06;
+      color: rgba(255, 249, 242, 0.4);
+      text-align: center;
+      padding: 2rem;
+      font-size: 0.85rem;
+    }
+
+    /* ── ANIMATIONS ── */
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(212, 121, 58, 0.4); }
+      50% { box-shadow: 0 0 0 8px rgba(212, 121, 58, 0); }
+    }
+
+    @keyframes float-slow {
+      0%, 100% { transform: translate(0, 0); }
+      50% { transform: translate(20px, -30px); }
+    }
+
+    @keyframes float-device {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-12px); }
+    }
+
+    @keyframes blink {
+      0%, 36%, 40%, 100% { transform: scaleY(1); }
+      38% { transform: scaleY(0.06); }
+    }
+
+    @keyframes eyelid {
+      0%, 36%, 40%, 100% { transform: scaleY(0); }
+      38% { transform: scaleY(1); }
+    }
+
+    @keyframes look-around {
+      0%,  18% { transform: translate(0px,   0px); }
+      23%, 33% { transform: translate(12px,  -7px); }
+      38%, 48% { transform: translate(-12px,  5px); }
+      53%, 63% { transform: translate(6px,   10px); }
+      68%, 78% { transform: translate(-8px,  -5px); }
+      83%, 100%{ transform: translate(0px,   0px); }
+    }
+
+    @keyframes particle-float {
+      0% { opacity: 0; transform: translateY(0); }
+      20% { opacity: 0.6; }
+      100% { opacity: 0; transform: translateY(-80px) translateX(20px); }
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 968px) {
+      .hero .container {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+
+      .hero-text .subtitle { margin: 0 auto 2.5rem; }
+      .hero-buttons { justify-content: center; }
+      .hero-visual { margin-top: 2rem; }
+
+      .problem-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+
+      .steps {
+        grid-template-columns: 1fr;
+      }
+
+      .steps::before { display: none; }
+
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .feature-card.featured {
+        grid-column: span 1;
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+
+      .team-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 640px) {
+      section { padding: 5rem 0; }
+      .container { padding: 0 1.2rem; }
+
+      .nav-links { display: none; }
+
+      .device { width: 240px; height: 280px; }
+      .eye { width: 40px; height: 56px; }
+      .eyes-container { gap: 34px; }
+
+      .stat-number { font-size: 2.8rem; }
+
+      .team-grid { grid-template-columns: 1fr; }
+
+      .hero-buttons { flex-direction: column; align-items: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav id="navbar">
+    <a href="#" class="nav-logo">
+      <span class="logo-dot"></span>
+      Lumi
+    </a>
+    <ul class="nav-links">
+      <li><a href="#problema">Problema</a></li>
+      <li><a href="#solucion">Solución</a></li>
+      <li><a href="#funciones">Funciones</a></li>
+      <li><a href="#equipo">Equipo</a></li>
+      <li><a href="https://github.com/AngelSalinasT/lumi" class="nav-cta" target="_blank">GitHub</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-text">
+        <div class="section-label reveal">Hackathon Troyano 2026 · MLH</div>
+        <h1 class="reveal reveal-delay-1">
+          Porque nadie<br>debería envejecer<br><span class="highlight">en soledad</span>
+        </h1>
+        <p class="subtitle reveal reveal-delay-2">
+          Lumi es un compañero de IA físico que acompaña a los adultos mayores con conversación natural, recordatorios y alertas para la familia — sin necesidad de teléfono o computadora.
+        </p>
+        <div class="hero-buttons reveal reveal-delay-3">
+          <a href="#solucion" class="btn-primary">Descubre cómo funciona ↓</a>
+          <a href="https://github.com/AngelSalinasT/lumi" target="_blank" class="btn-secondary">Ver en GitHub</a>
+        </div>
+      </div>
+      <div class="hero-visual reveal reveal-delay-2">
+        <div class="device-wrapper">
+          <div class="particle"></div>
+          <div class="particle"></div>
+          <div class="particle"></div>
+          <div class="particle"></div>
+          <div class="device">
+            <div class="device-screen">
+              <div class="eyes-container">
+                <div class="eye eye-left"></div>
+                <div class="eye eye-right"></div>
+              </div>
+            </div>
+            <div class="device-buttons">
+              <div class="device-btn"></div>
+              <div class="device-btn"></div>
+              <div class="device-btn"></div>
+            </div>
+          </div>
+          <div class="device-glow"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROBLEM -->
+  <section class="problem" id="problema">
+    <div class="container">
+      <div class="problem-grid">
+        <div class="problem-text">
+          <div class="section-label reveal">El problema</div>
+          <h2 class="section-title reveal reveal-delay-1">La soledad no es solo tristeza.<br>Es un riesgo de salud.</h2>
+          <p class="section-desc reveal reveal-delay-2">
+            En México, millones de adultos mayores viven solos o pasan el día sin compañía. Sus familias trabajan, estudian, y no pueden estar presentes 24/7. Los círculos sociales se reducen, las limitaciones físicas crecen, y las conversaciones que llenaban sus días desaparecen.
+          </p>
+          <blockquote class="reveal reveal-delay-3">
+            "El adulto mayor no necesita un teléfono ni una computadora. Solo presiona un botón y habla."
+          </blockquote>
+        </div>
+        <div class="reveal reveal-delay-2" style="display: flex; flex-direction: column; gap: 1.5rem;">
+          <div class="stat-card">
+            <div class="stat-number">35.4%</div>
+            <div class="stat-label">de los adultos mayores en México reporta sentimientos de soledad (ENASEM 2021)</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">1.7M</div>
+            <div class="stat-label">viven completamente solos, sin ningún familiar en casa</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">2×</div>
+            <div class="stat-label">mayor riesgo de deterioro cognitivo por aislamiento social</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SOLUTION -->
+  <section class="solution" id="solucion">
+    <div class="container">
+      <div class="solution-header">
+        <div class="section-label reveal">Cómo funciona</div>
+        <h2 class="section-title reveal reveal-delay-1">Tan simple como tener una conversación</h2>
+        <p class="section-desc reveal reveal-delay-2">
+          Lumi se coloca en el hogar del adulto mayor. Sin configuración complicada, sin pantallas táctiles. Solo una voz amigable que siempre está ahí.
+        </p>
+      </div>
+      <div class="steps">
+        <div class="step reveal reveal-delay-1">
+          <div class="step-icon"><i data-lucide="hand"></i></div>
+          <div class="step-number">Paso 01</div>
+          <h3>Presiona el botón</h3>
+          <p>El adulto mayor presiona un solo botón en Lumi y empieza a hablar naturalmente.</p>
+        </div>
+        <div class="step reveal reveal-delay-2">
+          <div class="step-icon"><i data-lucide="brain-circuit"></i></div>
+          <div class="step-number">Paso 02</div>
+          <h3>Lumi entiende y recuerda</h3>
+          <p>Con Gemini 2.5 Pro, Lumi procesa la voz, recuerda historias previas y responde con contexto.</p>
+        </div>
+        <div class="step reveal reveal-delay-3">
+          <div class="step-icon"><i data-lucide="users"></i></div>
+          <div class="step-number">Paso 03</div>
+          <h3>La familia se mantiene conectada</h3>
+          <p>Desde la app, la familia ve el estado, historial de conversaciones y recibe alertas al instante.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="features" id="funciones">
+    <div class="container">
+      <div class="features-header">
+        <div class="section-label reveal">Funciones</div>
+        <h2 class="section-title reveal reveal-delay-1">Todo lo que necesita, nada que sobre</h2>
+        <p class="section-desc reveal reveal-delay-2">
+          Diseñado pensando en la simplicidad para el adulto mayor y la tranquilidad para la familia.
+        </p>
+      </div>
+      <div class="features-grid">
+        <div class="feature-card reveal reveal-delay-1">
+          <span class="feature-icon"><i data-lucide="message-circle"></i></span>
+          <h3>Conversación natural</h3>
+          <p>Voz en español con ElevenLabs. Lumi habla con calidez, recuerda nombres, intereses y las historias que le han contado.</p>
+        </div>
+        <div class="feature-card reveal reveal-delay-2">
+          <span class="feature-icon"><i data-lucide="shield-alert"></i></span>
+          <h3>Detección de caídas</h3>
+          <p>Algoritmo de 3 fases: caída libre + impacto + confirmación por giroscopio. Alerta inmediata a la familia.</p>
+        </div>
+        <div class="feature-card reveal reveal-delay-3">
+          <span class="feature-icon"><i data-lucide="pill"></i></span>
+          <h3>Recordatorios de medicamentos</h3>
+          <p>Lumi recuerda amablemente que es hora de tomar la medicina, con la dosis correcta y el horario configurado.</p>
+        </div>
+        <div class="feature-card reveal reveal-delay-4">
+          <span class="feature-icon"><i data-lucide="siren"></i></span>
+          <h3>Botón de emergencia</h3>
+          <p>Un botón físico que envía alerta instantánea a familiares por la app y Telegram. Sin menús, sin complicaciones.</p>
+        </div>
+        <div class="feature-card featured reveal reveal-delay-3">
+          <div>
+            <span class="feature-icon"><i data-lucide="smartphone"></i></span>
+            <h3>App para la familia</h3>
+            <p>Dashboard en tiempo real con el estado del adulto mayor, historial de conversaciones, seguimiento de medicamentos y gestión de alertas. Disponible para iOS con React Native y Expo.</p>
+          </div>
+          <div class="feature-visual">
+            <div class="app-mockup">
+              <div class="app-screen">
+                <div class="app-header-bar">
+                  <div class="dot"></div>
+                  <span>Lumi Family</span>
+                </div>
+                <div class="app-card-mini">
+                  <div class="label">Estado</div>
+                  <div class="value" style="color: var(--sage);">● Activo — Conversando</div>
+                </div>
+                <div class="app-card-mini">
+                  <div class="label">Última conversación</div>
+                  <div class="value">Hace 12 min</div>
+                </div>
+                <div class="app-card-mini">
+                  <div class="label">Medicamentos hoy</div>
+                  <div class="value">2 de 3 tomados</div>
+                  <div class="bar"><div class="bar-fill" style="width: 66%;"></div></div>
+                </div>
+                <div class="app-card-mini">
+                  <div class="label">Alertas</div>
+                  <div class="value" style="color: var(--sage);">Sin alertas pendientes</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TECH STACK -->
+  <section class="tech" id="tecnologia">
+    <div class="container">
+      <div class="tech-header">
+        <div class="section-label reveal">Tecnología</div>
+        <h2 class="section-title reveal reveal-delay-1">Construido con lo mejor</h2>
+        <p class="section-desc reveal reveal-delay-2">
+          Un stack completo que conecta hardware, IA y móvil de forma fluida.
+        </p>
+      </div>
+      <div class="tech-grid reveal reveal-delay-3">
+        <div class="tech-pill"><span class="tech-dot" style="background: #4285F4;"></span>Gemini 2.5 Pro</div>
+        <div class="tech-pill"><span class="tech-dot" style="background: #000;"></span>ElevenLabs TTS</div>
+        <div class="tech-pill"><span class="tech-dot" style="background: #FF6B35;"></span>LangGraph</div>
+        <div class="tech-pill"><span class="tech-dot" style="background: #009688;"></span>FastAPI</div>
+        <div class="tech-pill"><span class="tech-dot" style="background: #47A248;"></span>MongoDB Atlas</div>
+        <div class="tech-pill"><span class="tech-dot" style="background: #61DAFB;"></span>React Native</div>
+        <div class="tech-pill"><span class="tech-dot" style="background: #000;"></span>Expo Router</div>
+        <div class="tech-pill"><span class="tech-dot" style="background: #0080FF;"></span>DigitalOcean</div>
+        <div class="tech-pill"><span class="tech-dot" style="background: #E34F26;"></span>ESP32 / M5GO</div>
+        <div class="tech-pill"><span class="tech-dot" style="background: #DC382D;"></span>Redis</div>
+        <div class="tech-pill"><span class="tech-dot" style="background: #1DA1F2;"></span>Caddy HTTPS</div>
+        <div class="tech-pill"><span class="tech-dot" style="background: #26A5E4;"></span>Telegram Bot</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TEAM -->
+  <section class="team" id="equipo">
+    <div class="container">
+      <div class="team-header">
+        <div class="section-label reveal">Equipo</div>
+        <h2 class="section-title reveal reveal-delay-1">Las personas detrás de Lumi</h2>
+      </div>
+      <div class="team-grid">
+        <div class="team-card reveal reveal-delay-1">
+          <div class="team-avatar">JA</div>
+          <h4>Jose Angel Salinas</h4>
+          <div class="role">Lead Developer & AI</div>
+        </div>
+        <div class="team-card reveal reveal-delay-2">
+          <div class="team-avatar">DS</div>
+          <h4>Danielle S. Rivera</h4>
+          <div class="role">Hardware & Research</div>
+        </div>
+        <div class="team-card reveal reveal-delay-3">
+          <div class="team-avatar">JL</div>
+          <h4>Jorge Luis Ramírez</h4>
+          <div class="role">Frontend & Animations</div>
+        </div>
+        <div class="team-card reveal reveal-delay-4">
+          <div class="team-avatar">AM</div>
+          <h4>Angel M. Morales</h4>
+          <div class="role">QA & Testing</div>
+        </div>
+        <div class="team-card reveal reveal-delay-5">
+          <div class="team-avatar">LJ</div>
+          <h4>Luis Julian Olalde</h4>
+          <div class="role">Bug Fixing & Integration</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta">
+    <div class="container">
+      <div class="cta-content">
+        <h2 class="reveal">Nadie debería envejecer<br>en soledad</h2>
+        <p class="reveal reveal-delay-1">
+          Lumi acompaña, recuerda y protege. Porque la tecnología también puede sentirse como un abrazo.
+        </p>
+        <a href="https://github.com/AngelSalinasT/lumi" target="_blank" class="btn-primary reveal reveal-delay-2">
+          Explora el proyecto →
+        </a>
+        <div class="hackathon-badge reveal reveal-delay-3">
+          <strong>Hackathon Troyano 2026</strong> · FIF UAQ · MLH Member Event
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    Lumi © 2026 — Hecho con cariño en Querétaro, México
+  </footer>
+
+  <!-- SCROLL REVEAL + NAV SCROLL -->
+  <script>
+    // Lucide icons
+    lucide.createIcons();
+
+    // Scroll reveal
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    // Nav scroll effect
+    const nav = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 50);
+    });
+  </script>
+</body>
+</html>
